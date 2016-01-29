@@ -6,12 +6,9 @@
 #include "conio.h"
 #include "winsock2.h"
 #include "ws2tcpip.h"
-
-#define SERVER_PORT 5500
-#define SERVER_ADDR "127.0.0.1"
 #define BUFF_SIZE 2048
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
 	//Step 1: Inittiate WinSock
 	WSADATA wsaData;
@@ -26,8 +23,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//Step 3: Bind address to socket
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(SERVER_PORT);
-	serverAddr.sin_addr.s_addr = inet_addr(SERVER_ADDR);
+	serverAddr.sin_port = htons(atoi(argv[1]));
+	serverAddr.sin_addr.s_addr = inet_addr(argv[2]);
 	if (bind(server, (sockaddr *)&serverAddr, sizeof(serverAddr)))
 	{
 		printf("Error! Cannot bind this address.");
@@ -45,17 +42,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		//Receive message
 		ret = recvfrom(server, buff, BUFF_SIZE, 0, (sockaddr *)&clientAddr, &clientAddrLen);
 		if (ret == SOCKET_ERROR)
-			printf("Error : %", WSAGetLastError());
+			printf("Error : %d", WSAGetLastError());
 		else if (strlen(buff) > 0) {
 			buff[ret] = 0;
 			printf("Receive from client[%s:%d] %s\n",
 				inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port), buff);
-			//sum += ret;
-		//	printf("The number size is :%d", sum);
+			sum += ret;
+			printf(" Receive:  %d Byte \n", sum);
 			//Echo to client
 			ret = sendto(server, buff, strlen(buff), 0, (SOCKADDR *)&clientAddr, sizeof(clientAddr));
 			if (ret == SOCKET_ERROR)
-				printf("Error: %", WSAGetLastError());
+				printf("Error: %d", WSAGetLastError());
 		}
 	} //end while
 
